@@ -25,10 +25,10 @@
 #' @export
 #' 
 fn.lambda <- function(
-  trait.optimum,
-  niche.breadth,
-  Ef,
-  Ef.specificity){
+  trait.optimum = .5,
+  niche.breadth = 1,
+  Ef = .5,
+  Ef.specificity = 0){
   if(Ef.specificity!=0){
     integrate(f=function(e,t,niche)exp(-1 * ((e -  t)^2) / (2 * niche^2) ),
               lower=Ef-(Ef.specificity/2),
@@ -58,9 +58,9 @@ fn.lambda <- function(
 #' @export
 #' 
 fn.lottery.recruit <- function(
-  vect.recruitment.weights,
-  vect.taxa.list,   # -- recruitment pool with weights
-  scalar.JL  
+  vect.recruitment.weights = rep(1,length(vect.taxa.list)),
+  vect.taxa.list = "spp1",   # -- recruitment pool with weights
+  scalar.JL = 100L
 ){
   # -- function to recruit from a source pool, given site carrying capacities and a recruitment pool
   dat.abund<-table(as.character(
@@ -101,13 +101,13 @@ fn.lottery.recruit <- function(
 #' 
 fn.set.regional.species.pool <- function(
   # Function to initialize the regional pool.  Set richness and traits.
-  n.timestep=n.timestep,
-  nu=nu,
+  n.timestep = 0,
+  nu=.001,
   speciation.limit=NA,
-  JM,
-  alpha.fisher,
-  trait.dispersal.median,
-  trait.dispersal.range,
+  JM = 1000,
+  alpha.fisher = 2,
+  trait.dispersal.median = 1,
+  trait.dispersal.range = 0,
   taxa.list.prefix="spp"){
   
   gamma.abund<-fisher.ecosystem(N=JM,nmax=JM,alpha=alpha.fisher) #use Fisher's logseries to create a regional rank abundance curve
