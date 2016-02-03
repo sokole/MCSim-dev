@@ -168,20 +168,20 @@ fn.make.landscape<-function(
 #' 
 fn.recruit.Jt <- function(
   # calls calculates R.t (expected pool) to calculate extant pool
-  par.list<-list(mat.geodist = as.matrix(dist(1:3)),
-                 nu = .001,
-                 SWM.slope = 0,
-                 J.t.minus.1 = matrix(JL/length(taxa.list), 
-                                      nrow=nrow(as.matrix(mat.geodist)), 
-                                      ncol=length(taxa.list)),
-                 taxa.list = letters[1:5],
-                 traits.Ef = array(.5, length(taxa.list)),
-                 trait.Ef.sd = 0,
-                 traits.dispersal = array(1, length(taxa.list)),
-                 m = 1,
-                 Ef = array(.5, nrow(mat.geodist)),
-                 Ef.specificity = 0,
-                 JL = 10){
+  mat.geodist = as.matrix(dist(1:3)),
+  nu = .001,
+  SWM.slope = 0,
+  JL = 10,
+  J.t.minus.1 = matrix(JL/length(taxa.list), 
+                       nrow=nrow(mat.geodist), 
+                       ncol=length(taxa.list)),
+  taxa.list = letters[1:5],
+  traits.Ef = runif(length(taxa.list),0,1),
+  trait.Ef.sd = 0.15,
+  traits.dispersal = array(1, length(taxa.list)),
+  m = 1,
+  Ef = array(.5, nrow(mat.geodist)),
+  Ef.specificity = 0){
   
   # -- Calculate R.t, estimates of locally available pools at each site based on 
   # local relative abundances at time t-1 (or t0)

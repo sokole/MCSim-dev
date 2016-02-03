@@ -56,4 +56,5 @@ set.seed(10)
 d_geo_matrix<-data.frame(x=1:10)
 landscape_object<-fn.make.landscape(site.coords = d_geo_matrix)
 
-fn.recruit.Jt()
+fn.recruit.Jt(mat.geodist = as.matrix(dist(1:4)),
+              taxa.list = letters[1:26])
