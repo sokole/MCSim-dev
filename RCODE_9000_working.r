@@ -58,3 +58,11 @@ landscape_object<-fn.make.landscape(site.coords = d_geo_matrix)
 
 fn.recruit.Jt(mat.geodist = as.matrix(dist(1:4)),
               taxa.list = letters[1:26])
+# -------------------------------------
+# testing fn.metaSIM()
+# -- run a metacommunity simulation -- v0.4.0.9000
+# -------------------
+
+landscape_object<-fn.make.landscape(site.coords = 1:10)
+
+sim.output<-fn.metaSIM(landscape_object)
