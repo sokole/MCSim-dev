@@ -70,3 +70,7 @@ sim.result<-fn.metaSIM(
   trait.Ef.sd = 0.3,
   save.sim = TRUE, 
   output.dir.path = paste('SIM',scenario.ID,sep='_'))
+
+
+
+
