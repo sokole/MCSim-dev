@@ -20,7 +20,7 @@ fn.make.landscape<-function(
   # -- default metacommunity parameters if none given
   JM = 1000,
   I.rate.m2 = 1,
-  area_m2 = 1,
+  area.m2 = 1,
   Ef.specificity = 0, # 0 is point specificity along env. gradient
   Ef = .5,
   guess.site.coords = TRUE,
@@ -67,22 +67,22 @@ fn.make.landscape<-function(
   
   if(!get.the.f.out){
     # -- turn area into a vector if it is not a vector, otherwise, it remains the same, get's fed up if it's the wrong length
-    area_m2<-data.frame(
+    area.m2<-data.frame(
       dummy=c(1:n.obs),
-      area_m2=area_m2)$area_m2
+      area.m2=area.m2)$area.m2
     
     # -------------------------------
     # -- calculate assemblage sizes at sites, JL 
     # -- JL influenced by management
     # -------------------------------
-    JL.wts <- area_m2 / sum(area_m2)
+    JL.wts <- area.m2 / sum(area.m2)
     JL.wts <- JL.wts/sum(JL.wts)
     JL <- round(JL.wts * JM,0)
     
     # -------------------------------
     # -- calculate immigration at sites, IL 
     # -------------------------------
-    I.site <- I.rate.m2 * area_m2
+    I.site <- I.rate.m2 * area.m2
     I.site <- round(I.site,0)
     m.site <- I.site/(I.site + JL - 1)
     
@@ -91,7 +91,7 @@ fn.make.landscape<-function(
     # -------------------------------
     dat.info.default<-data.frame(
       site.ID = c(1:nrow(dat.geo.out)),
-      area_m2 = area_m2,
+      area.m2 = area.m2,
       JL = JL,
       Ef = Ef,
       Ef.specificity = Ef.specificity,
@@ -102,7 +102,7 @@ fn.make.landscape<-function(
     if(nrow(site.info)>0){
       dat.info.out<-site.info  
       # -- check to see if specific vars need to be filled in
-      for(i.var in c('site.ID','area_m2','JL','Ef','Ef.specificity','IL','m')){
+      for(i.var in c('site.ID','area.m2','JL','Ef','Ef.specificity','IL','m')){
         if(!i.var%in%names(dat.info.out)) dat.info.out[,i.var] <- dat.info.default[,i.var]
       }
     }else{
@@ -132,7 +132,7 @@ fn.make.landscape<-function(
 #'filtering.
 #' 
 #' @usage 
-#' fn.recruit.Jt(landscape.xy = landscape$dat[, c("x", "y")], nu = nu,
+#' fn.recruit.Jt(landscape.site.coords = landscape$dat[, c("x", "y")], nu = nu,
 #'               SWM.slope = SWM.slope, J.t.minus.1 = J.t.minus.1, 
 #'               taxa.list = taxa.list, traits.Ef = dat.gamma.t0$trait.Ef, 
 #'               trait.Ef.sd = trait.Ef.sd, traits.dispersal = dat.gamma.t0$trait.dispersal, 
@@ -140,7 +140,7 @@ fn.make.landscape<-function(
 #'               landscape.Ef.specificity = landscape$dat$Ef.specificity, 
 #'               landscape.JL = landscape$dat$JL)
 #'               
-#' @param landscape.xy A data.frame with xy-coordinates for each site.  Each row is a 
+#' @param landscape.site.coords A data.frame with xy-coordinates for each site.  Each row is a 
 #' site in the metacommunity landscape.
 #' @param nu Numeric, Hubbell's "speciation rate", but can be interpreted as the 
 #' probability of the appearance of a novel species.  If set to 0, no novel taxa 
@@ -166,20 +166,22 @@ fn.make.landscape<-function(
 #' 
 #' @export
 #' 
-fn.recruit.Jt_0.3.1 <- function(
+fn.recruit.Jt <- function(
   # calls calculates R.t (expected pool) to calculate extant pool
-  mat.geodist=landscape$dist,
-  nu=nu,
-  SWM.slope=SWM.slope,
-  J.t.minus.1=J.t.minus.1,
-  taxa.list=taxa.list,
-  traits.Ef=dat.gamma.t0$trait.Ef,
-  trait.Ef.sd=trait.Ef.sd,
-  traits.dispersal=dat.gamma.t0$trait.dispersal,
-  m=m,
-  Ef=Ef,
-  Ef.specificity=Ef.specificity,
-  JL=JL){
+  par.list<-list(mat.geodist = as.matrix(dist(1:3)),
+                 nu = .001,
+                 SWM.slope = 0,
+                 J.t.minus.1 = matrix(JL/length(taxa.list), 
+                                      nrow=nrow(as.matrix(mat.geodist)), 
+                                      ncol=length(taxa.list)),
+                 taxa.list = letters[1:5],
+                 traits.Ef = array(.5, length(taxa.list)),
+                 trait.Ef.sd = 0,
+                 traits.dispersal = array(1, length(taxa.list)),
+                 m = 1,
+                 Ef = array(.5, nrow(mat.geodist)),
+                 Ef.specificity = 0,
+                 JL = 10){
   
   # -- Calculate R.t, estimates of locally available pools at each site based on 
   # local relative abundances at time t-1 (or t0)
@@ -195,7 +197,7 @@ fn.recruit.Jt_0.3.1 <- function(
   # -- calculate recruitment probabilities from I for each site
   # create SWM to weight all neighboring sites contributions to "Immigrant" pool
   # use eq 6 from Gravel et al. 2006, but set diags to 0
-  #   mat.geodist<-as.matrix(dist(landscape.xy))
+  #   mat.geodist<-as.matrix(dist(landscape.site.coords))
   
   max.val<-max(mat.geodist[mat.geodist!=Inf]) #max finite value
   mat.geodist.scaled<-mat.geodist/max.val
@@ -215,9 +217,13 @@ fn.recruit.Jt_0.3.1 <- function(
   R.t<-m*I.RAs.dispersal.biased+(1-m)*J.t.minus.1.RAs
   
   # -- all species that have 0 regional RA at time t-1 are assigned a non-zero probability of recruitment,
-  # which is nu / (coung of unobserved species in the list).  A "speciation event" in this simulation is 
-  # recruitment of a previously unobserved species.  
-  speciation.recruitment.prob<-nu/(sum(colSums(R.t)==0))
+  # which is nu / (count of unobserved species in the list).  A "speciation event" in this simulation is 
+  # recruitment of a previously unobserved species. 
+  unobserved.spp.count <- sum(colSums(R.t)==0)
+  speciation.recruitment.prob <- ifelse(
+    unobserved.spp.count == 0,
+    0,
+    nu / unobserved.spp.count)
   
   # -- alter all the probabilities accordingly, all rows must add to 1
   mat.nu<-R.t

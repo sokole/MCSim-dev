@@ -34,3 +34,26 @@ fn.lottery.recruit(
 # -------------------
 set.seed(10)
 fn.set.regional.species.pool(alpha.fisher = 1)
+
+# -------------------------------------
+# testing fn.make.landscape()
+# -- make a landscape -- v0.4.0.9000
+# -------------------
+set.seed(10)
+dist_matrix<-dist(c(1:10))
+fn.make.landscape(dist.mat = dist_matrix)
+
+set.seed(10)
+d_geo_matrix<-data.frame(x=1:10)
+fn.make.landscape(site.coords = d_geo_matrix)
+
+# -------------------------------------
+# testing fn.recruit.Jt()
+# -- Recruitment in a metacommunity with context -- v0.4.0.9000
+# -------------------
+
+set.seed(10)
+d_geo_matrix<-data.frame(x=1:10)
+landscape_object<-fn.make.landscape(site.coords = d_geo_matrix)
+
+fn.recruit.Jt()
