@@ -229,7 +229,7 @@ fn.make.landscape<-function(
   area.m2 = 1,
   Ef.specificity = 0, # 0 is point specificity along env. gradient
   Ef = .5,
-  guess.site.coords = TRUE,
+  guess.site.coords = FALSE,
   list.of.stuff = NA
 ){
   # -------------------------------
